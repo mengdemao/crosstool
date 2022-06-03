@@ -156,11 +156,15 @@ echo -e "start compile gcc first step"
 pushd "${object_dir}"/${dir_gcc} >> /dev/null || exit
 mkdir build
 pushd build >> /dev/null || exit
-../configure                                       \
-    --target=${target}                             \
-    --prefix="${target_dir}"                         \
-    --with-glibc-version=2.35                      \
-    --enable-languages=c,c++ || exit
+../configure                                       	\
+    --target=${target}                             	\
+    --prefix="${target_dir}"                       	\
+    --with-glibc-version=2.35                      	\
+    --enable-languages=c,c++ 						\
+	--disable-multilib 								\
+	--with-mode=arm 								\
+	--with-float-hard 								\
+	|| exit
 
 make all-gcc -j "$(nproc)" || exit
 make install-gcc -j "$(nproc)" || exit
@@ -180,6 +184,7 @@ pushd build >> /dev/null || exit
     --build="$(../scripts/config.guess)" \
     --enable-kernel=3.2 \
     --with-headers="${target_dir}"/${target}/include \
+	--disable-multilib \
     libc_cv_forced_unwind=yes  \
     with_selinux=no || exit
 make -j "$(nproc)" || exit
