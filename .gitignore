@@ -52,4 +52,7 @@ Mkfile.old
 dkms.conf
 object/
 target/
-arm-linux-gnueabi/
+arm-linux-gnueabihf/
+/*.cproject
+/*.project
+/.settings/*.prefs
