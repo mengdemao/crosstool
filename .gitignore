@@ -56,3 +56,8 @@ arm-linux-gnueabihf/
 /*.cproject
 /*.project
 /.settings/*.prefs
+
+binutils-*.tar.xz
+gcc-*.tar.xz
+glibc-*.tar.xz
+linux-*.tar.xz
