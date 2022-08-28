@@ -61,3 +61,4 @@ binutils-*.tar.xz
 gcc-*.tar.xz
 glibc-*.tar.xz
 linux-*.tar.xz
+install
