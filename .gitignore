@@ -65,3 +65,4 @@ install
 buildhost
 host/
 build/
+src/
