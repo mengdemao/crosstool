@@ -7,7 +7,7 @@ target=arm-linux-gnueabihf
 ROOT_PATH=$(pwd)
 export SRC_PATH=${ROOT_PATH}/src
 export BUILD_PATH=${ROOT_PATH}/build
-export INSTALL_PATH=${ROOT_PATH}/install
+export INSTALL_PATH=${ROOT_PATH}/${target}-gcc
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 
 version_gcc=12.2.0
