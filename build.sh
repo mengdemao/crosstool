@@ -13,7 +13,7 @@ export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 version_gcc=12.2.0
 version_binutil=2.39
 version_glic=2.36
-version_linux=4.19.229
+version_linux=4.19.257
 version_gmp=6.2.1
 version_mpc=1.2.1
 version_mpfr=4.1.0
@@ -43,8 +43,8 @@ file_cloog=${dir_cloog}.tar.gz
 # 创建临时文件夹
 download_resource() 
 {
-    [ -d "${SRC_PATH}" ] && rm -rf  "${SRC_PATH}"
-    mkdir -p "${SRC_PATH}"
+    # [ -d "${SRC_PATH}" ] && rm -rf  "${SRC_PATH}"
+    # mkdir -p "${SRC_PATH}"
     
     pushd "${SRC_PATH}" >> /dev/null || exit
 
@@ -338,6 +338,7 @@ build_gcc_stage3() {
         --disable-multilib \
         --enable-shared \
         --disable-nls \
+        --disable-libsanitizer \
         --with-gnu-ld \
         --with-gnu-as \
         --with-mode=arm \
