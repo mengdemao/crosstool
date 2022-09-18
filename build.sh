@@ -5,7 +5,7 @@ target=arm-linux-gnueabihf
 
 # 目录设置
 ROOT_PATH=$(pwd)
-export SRC_PATH=${ROOT_PATH}/src
+export TARBALL_PATH=${ROOT_PATH}/tarball
 export BUILD_PATH=${ROOT_PATH}/build
 export INSTALL_PATH=${ROOT_PATH}/${target}-gcc
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
@@ -43,10 +43,10 @@ file_cloog=${dir_cloog}.tar.gz
 # 创建临时文件夹
 download_resource() 
 {
-    # [ -d "${SRC_PATH}" ] && rm -rf  "${SRC_PATH}"
-    # mkdir -p "${SRC_PATH}"
+    [ -d "${TARBALL_PATH}" ] && rm -rf  "${TARBALL_PATH}"
+    mkdir -p "${TARBALL_PATH}"
     
-    pushd "${SRC_PATH}" >> /dev/null || exit
+    pushd "${TARBALL_PATH}" >> /dev/null || exit
 
     if [ ! -f "${file_binutils}" ]; then
         wget https://mirrors.tuna.tsinghua.edu.cn/gnu/binutils/${file_binutils}
@@ -95,32 +95,32 @@ prepare_resource()
 
     # 解压binutils
     echo -e "start uncompress ${file_binutils} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_binutils} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_binutils} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_binutils} to ${BUILD_PATH}\n"
 
     # 解压gcc
     echo -e "start uncompress ${file_gcc} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_gcc} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_gcc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_gcc} to ${BUILD_PATH}\n"
 
     echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_gmp} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_gmp} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_gmp} to ${BUILD_PATH}\n"
 
     echo -e "start uncompress ${file_mpfr} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_mpfr} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_mpfr} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_mpfr} to ${BUILD_PATH}\n"
 
     echo -e "start uncompress ${file_mpc} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_mpc} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_mpc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_mpc} to ${BUILD_PATH}\n"
 
     echo -e "start uncompress ${file_isl} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_isl} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_isl} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_isl} to ${BUILD_PATH}\n"
 
     echo -e "start uncompress ${file_cloog} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_cloog} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_cloog} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_cloog} to ${BUILD_PATH}\n"
 
     pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
@@ -133,12 +133,12 @@ prepare_resource()
 
     # 解压头文件
     echo -e "start uncompress ${file_linux} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_linux} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_linux} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_linux} to ${BUILD_PATH}\n"
 
     # 解压glibc
     echo -e "start uncompress ${file_glibc} to ${BUILD_PATH}\n"
-    tar -vxf "${SRC_PATH}"/${file_glibc} -C "${BUILD_PATH}"
+    tar -vxf "${TARBALL_PATH}"/${file_glibc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_glibc} to ${BUILD_PATH}\n"
 }
 
