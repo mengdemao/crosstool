@@ -5,8 +5,8 @@ target=arm-linux-gnueabihf
 
 # 目录设置
 ROOT_PATH=$(pwd)
-export TARBALL_PATH=${ROOT_PATH}/tarball
 export BUILD_PATH=${ROOT_PATH}/build
+export TARBALL_PATH=${ROOT_PATH}/tarball
 export INSTALL_PATH=${ROOT_PATH}/${target}-gcc
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 
