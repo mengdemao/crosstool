@@ -10,6 +10,7 @@ export BUILD_PATH=${ROOT_PATH}/build
 export INSTALL_PATH=${ROOT_PATH}/${target}-gcc
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 
+version_compile=1.0
 version_gcc=12.2.0
 version_binutil=2.39
 version_glic=2.36
@@ -155,7 +156,9 @@ build_binutils() {
         --target=${target} \
         --with-sysroot="${SYSROOT_PATH}" \
         --with-lib-path="${INSTALL_PATH}"/lib \
+        --with-pkgversion="Fly Box ${version_compile}" \
         --disable-werror \
+        --disable-multilib \
         --enable-lto \
         --disable-gdb \
         --disable-nls \
@@ -167,8 +170,6 @@ build_binutils() {
 		--enable-64-bit-bfd \
 		--disable-bootstrap \
         --disable-shared \
-        --enable-multilib \
-        --with-sysroot="${SYSROOT_PATH}" \
         || exit
 		
     make -j "$(nproc)" || exit
@@ -203,6 +204,7 @@ build_gcc_stage1()
         --prefix="${INSTALL_PATH}" \
         --with-sysroot="${SYSROOT_PATH}" \
         --with-glibc-version=${version_glic} \
+        --with-system-zlib \
         --disable-bootstrap \
         --enable-threads=posix \
         --enable-check=release \
@@ -338,7 +340,6 @@ build_gcc_stage3() {
         --disable-multilib \
         --enable-shared \
         --disable-nls \
-        --disable-libsanitizer \
         --with-gnu-ld \
         --with-gnu-as \
         --with-mode=arm \
