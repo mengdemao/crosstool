@@ -7,6 +7,7 @@ target=arm-linux-gnueabihf
 ROOT_PATH=$(pwd)
 export BUILD_PATH=${ROOT_PATH}/build
 export TARBALL_PATH=${ROOT_PATH}/tarball
+export PATCHES_PATH=${ROOT_PATH}/patches
 export INSTALL_PATH=${ROOT_PATH}/${target}-gcc
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 
@@ -103,6 +104,11 @@ prepare_resource()
     echo -e "start uncompress ${file_gcc} to ${BUILD_PATH}\n"
     tar -vxf "${TARBALL_PATH}"/${file_gcc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_gcc} to ${BUILD_PATH}\n"
+
+    # 打入补丁
+    pushd "${BUILD_PATH}/${dir_gcc}" >> /dev/null || exit
+    patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch
+    popd >> /dev/null || exit
 
     echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}\n"
     tar -vxf "${TARBALL_PATH}"/${file_gmp} -C "${BUILD_PATH}"
