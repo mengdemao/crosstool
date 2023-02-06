@@ -8,14 +8,14 @@ ROOT_PATH=$(pwd)
 export BUILD_PATH=${ROOT_PATH}/build
 export TARBALL_PATH=${ROOT_PATH}/tarball
 export PATCHES_PATH=${ROOT_PATH}/patches
-export INSTALL_PATH=${ROOT_PATH}/${target}-gcc
+export INSTALL_PATH=${ROOT_PATH}/gcc-${target}
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 
 version_compile=1.0
 version_gcc=12.2.0
-version_binutil=2.39
-version_glic=2.36
-version_linux=4.19.257
+version_binutil=2.40
+version_glic=2.37
+version_linux=4.19.259
 version_gmp=6.2.1
 version_mpc=1.2.1
 version_mpfr=4.1.0
@@ -31,6 +31,7 @@ dir_mpc=mpc-${version_mpc}
 dir_mpfr=mpfr-${version_mpfr}
 dir_isl=isl-${version_isl}
 dir_cloog=cloog-${version_cloog}
+dir_test=test
 
 file_binutils=${dir_binutils}.tar.xz
 file_gcc=${dir_gcc}.tar.xz
@@ -43,11 +44,11 @@ file_isl=${dir_isl}.tar.bz2
 file_cloog=${dir_cloog}.tar.gz
 
 # 创建临时文件夹
-download_resource() 
+download_resource()
 {
     [ -d "${TARBALL_PATH}" ] && rm -rf  "${TARBALL_PATH}"
     mkdir -p "${TARBALL_PATH}"
-    
+
     pushd "${TARBALL_PATH}" >> /dev/null || exit
 
     if [ ! -f "${file_binutils}" ]; then
@@ -91,7 +92,7 @@ prepare_resource()
     # 创建目标文件夹
     [ -d "${INSTALL_PATH}" ] && rm -rf  "${INSTALL_PATH}"
     mkdir -p "${INSTALL_PATH}"
-    
+
     [ -d "${BUILD_PATH}" ] && rm -rf  "${BUILD_PATH}"
     mkdir -p "${BUILD_PATH}"
 
@@ -153,7 +154,7 @@ prepare_resource()
 build_binutils() {
     echo -e "start compile binutils"
     pushd "${BUILD_PATH}"/${dir_binutils} >>/dev/null || exit
-    [ -d build ] && rm -rf build 
+    [ -d build ] && rm -rf build
     mkdir build
     pushd build >>/dev/null || exit
 
@@ -177,7 +178,7 @@ build_binutils() {
 		--disable-bootstrap \
         --disable-shared \
         || exit
-		
+
     make -j "$(nproc)" || exit
     make install || exit
 
@@ -187,7 +188,7 @@ build_binutils() {
 }
 
 # 编译内核头文件
-build_kernel_header() 
+build_kernel_header()
 {
     echo -e "start compile linux kernel header"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
@@ -197,12 +198,12 @@ build_kernel_header()
 }
 
 # 第一次编译gcc
-build_gcc_stage1() 
+build_gcc_stage1()
 {
     echo -e "start compile gcc first step"
     pushd "${BUILD_PATH}"/${dir_gcc} >>/dev/null || exit
 
-    [ -d build_gcc_stage1 ] && rm -rf build_gcc_stage1 
+    [ -d build_gcc_stage1 ] && rm -rf build_gcc_stage1
     mkdir build_gcc_stage1
     pushd build_gcc_stage1 >>/dev/null || exit
     ../configure \
@@ -235,8 +236,8 @@ build_gcc_stage1()
 build_glibc_stage1() {
     echo -e "start compile glibc first step"
     pushd "${BUILD_PATH}"/${dir_glibc} >>/dev/null || exit
-    
-    [ -d build_glibc_stage1 ] && rm -rf build_glibc_stage1 
+
+    [ -d build_glibc_stage1 ] && rm -rf build_glibc_stage1
     mkdir build_glibc_stage1
     pushd build_glibc_stage1 >>/dev/null || exit
     ../configure \
@@ -252,7 +253,7 @@ build_glibc_stage1() {
         libc_cv_c_cleanup=yes                         \
         with_selinux=no || exit
     make install-bootstrap-headers=yes install-headers || exit
-    make -j"$(nproc)" csu/subdir_lib 
+    make -j"$(nproc)" csu/subdir_lib
     install csu/crt1.o csu/crti.o csu/crtn.o "${INSTALL_PATH}"/${target}/lib
     ${target}-gcc -nostdlib -nostartfiles -shared -x c /dev/null -o "${INSTALL_PATH}"/${target}/lib/libc.so
     touch "${INSTALL_PATH}"/${target}/include/gnu/stubs.h
@@ -265,7 +266,7 @@ build_glibc_stage1() {
 build_gcc_stage2() {
     echo -e "start compile gcc second step"
     pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
-    
+
     [ -d build_gcc_stage2 ] && rm -rf build_gcc_stage2
     mkdir build_gcc_stage2
     pushd build_gcc_stage2 >>/dev/null || exit
@@ -289,7 +290,7 @@ build_gcc_stage2() {
 
     make all-target-libgcc -j "$(nproc)" || exit
     make install-target-libgcc -j "$(nproc)" || exit
-    
+
     popd >>/dev/null || exit
     popd >> /dev/null || exit
     echo -e "end compile gcc second step"
@@ -303,7 +304,7 @@ build_glibc_stage2() {
     [ -d build_glibc_stage2 ] && rm -rf build_glibc_stage2
     mkdir build_glibc_stage2
     pushd build_glibc_stage2 >>/dev/null || exit
-    
+
     ../configure \
         --prefix="${INSTALL_PATH}/${target}" \
         --host=${target} \
@@ -319,7 +320,7 @@ build_glibc_stage2() {
 
     make -j "$(nproc)" || exit
     make install -j "$(nproc)" || exit
-    
+
     popd >>/dev/null || exit
     popd >>/dev/null || exit
     echo -e "end compile glibc second step"
@@ -328,7 +329,7 @@ build_glibc_stage2() {
 # 第三次编译gcc
 build_gcc_stage3() {
     echo -e "start compile gcc third step"
-    
+
     pushd "${BUILD_PATH}"/${dir_gcc} >>/dev/null || exit
 
     [ -d build_gcc_stage3 ] && rm -rf build_gcc_stage3
@@ -354,7 +355,7 @@ build_gcc_stage3() {
 
     make -j "$(nproc)" || exit
     make install -j "$(nproc)" || exit
-    
+
     popd >> /dev/null || exit
     popd >> /dev/null || exit
     echo -e "end compile gcc third step"
@@ -370,7 +371,16 @@ build_kernel() {
     echo -e "end test compile"
 }
 
-download_resource
+build_program() {
+    echo -e "start test compile"
+    pushd "${ROOT_PATH}"/${dir_test} >>/dev/null || exit
+	${INSTALL_PATH}/bin/${target}-gcc -static test.c -o test.elf
+	qemu-arm test.elf
+    popd >>/dev/null || exit
+    echo -e "end test compile"
+}
+
+# download_resource
 prepare_resource
 build_binutils
 build_kernel_header
@@ -380,3 +390,4 @@ build_gcc_stage2
 build_glibc_stage2
 build_gcc_stage3
 build_kernel
+build_program
