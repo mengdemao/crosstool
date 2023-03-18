@@ -12,7 +12,7 @@ export INSTALL_PATH=${ROOT_PATH}/gcc-${target}
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 
 # 编译CPU数
-NJOBS=12
+NJOBS=6
 
 version_compile=1.0
 version_gcc=12.2.0
@@ -377,7 +377,7 @@ build_gcc_stage3() {
 
 build_gdb() {
     echo -e "start build gdb"
-    pushd "${ROOT_PATH}"/${dir_gdb} >>/dev/null || exit
+    pushd "${BUILD_PATH}"/${dir_gdb} >>/dev/null || exit
     mkdir build && pushd build >> /dev/null || exit
     ../configure \
         --enable-targets=${target} \
