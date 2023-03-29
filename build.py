@@ -21,7 +21,10 @@ class CompileVersion:
         读取配置文件
     	'''
         buildConfig = toml.load(configFile)
-        return buildConfig
+        return True
 
 if __name__ == '__main__':
-    print("build script start");
+    compileVersion = CompileVersion()
+    compileVersion.readConfig('config.toml')
+    print("build script start")
+

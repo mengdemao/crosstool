@@ -1,7 +1,22 @@
 #!/bin/bash
 
 # 目标设置
-target=arm-linux-gnueabihf
+# arm   arm-linux-gnueabi
+# arm   arm-linux-gnueabihf
+# arm64 aarch64-linux-gnueabi
+# arm64 aarch64-linux-gnueabihf
+
+# target=aarch64-linux-gnueabi
+# arch=arm64
+
+# target=aarch64-linux-gnueabihf
+# arch=arm64
+
+# target=arm-linux-gnueabihf
+# arch=arm
+
+target=arm-linux-gnueabi
+arch=arm
 
 # 目录设置
 ROOT_PATH=$(pwd)
@@ -10,6 +25,7 @@ export TARBALL_PATH=${ROOT_PATH}/tarball
 export PATCHES_PATH=${ROOT_PATH}/patches
 export INSTALL_PATH=${ROOT_PATH}/gcc-${target}
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
+export PATH=${INSTALL_PATH}/bin:${PATH}
 
 # 编译CPU数
 NJOBS=6
@@ -206,7 +222,7 @@ build_kernel_header()
 {
     echo -e "start compile linux kernel header"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
-    make ARCH=arm INSTALL_HDR_PATH="${SYSROOT_PATH}/usr" headers_install || exit
+    make ARCH=${arch} INSTALL_HDR_PATH="${SYSROOT_PATH}/usr" headers_install || exit
     popd >>/dev/null || exit
     echo -e "end compile linux kernel header"
 }
@@ -233,9 +249,7 @@ build_gcc_stage1()
         --disable-multilib \
         --without-headers \
         --with-gnu-ld \
-        --with-gnu-as \
-        --with-mode=arm \
-        --with-float=hard ||
+        --with-gnu-as ||
         exit
 
     make all-gcc -j "${NJOBS}" || exit
@@ -297,9 +311,7 @@ build_gcc_stage2() {
         --enable-shared \
         --disable-nls \
         --with-gnu-ld \
-        --with-gnu-as \
-        --with-mode=arm \
-        --with-float=hard ||
+        --with-gnu-as ||
         exit
 
     make all-target-libgcc -j "${NJOBS}" || exit
@@ -362,9 +374,7 @@ build_gcc_stage3() {
         --enable-shared \
         --disable-nls \
         --with-gnu-ld \
-        --with-gnu-as \
-        --with-mode=arm \
-        --with-float=hard ||
+        --with-gnu-as ||
         exit
 
     make -j "${NJOBS}" || exit
@@ -396,7 +406,7 @@ build_gdb() {
     echo -e "end build gdb"
 }
 
-build_kernel() {
+build_arm32_kernel() {
     echo -e "start test compile"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
     make ARCH=arm CROSS_COMPILE=${target}- distclean || exit
@@ -406,16 +416,39 @@ build_kernel() {
     echo -e "end test compile"
 }
 
-build_program() {
+build_arm64_kernel() {
     echo -e "start test compile"
-    pushd "${ROOT_PATH}"/${dir_test} >>/dev/null || exit
-	${INSTALL_PATH}/bin/${target}-gcc -static test.c -o test.elf
-	qemu-arm test.elf
+    pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
+    make ARCH=arm64 CROSS_COMPILE=${target}- distclean || exit
+    make ARCH=arm64 CROSS_COMPILE=${target}- defconfig || exit
+    make ARCH=arm64 CROSS_COMPILE=${target}- -j "${NJOBS}" || exit
     popd >>/dev/null || exit
     echo -e "end test compile"
 }
 
-download_resource
+build_kernel()
+{
+    if [ ${arch} = arm ]; then
+        build_arm32_kernel
+    else
+        build_arm64_kernel
+    fi
+}
+
+build_program() {
+    echo -e "start test compile"
+    pushd "${ROOT_PATH}"/${dir_test} >>/dev/null || exit
+	${target}-gcc -static test.c -o test.elf
+    if [ ${arch} = arm ]; then
+	    qemu-arm test.elf
+    else
+        qemu-aarch64 test.elf
+    fi
+    popd >> /dev/null || exit
+    echo -e "end test compile"
+}
+
+# download_resource
 prepare_resource
 build_binutils
 build_kernel_header
