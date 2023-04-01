@@ -1,4 +1,10 @@
 #!/bin/bash
+#   _____  _____    ____    _____  _____  _______  ____    ____   _
+#  / ____||  __ \  / __ \  / ____|/ ____||__   __|/ __ \  / __ \ | |
+# | |     | |__) || |  | || (___ | (___     | |  | |  | || |  | || |
+# | |     |  _  / | |  | | \___ \ \___ \    | |  | |  | || |  | || |
+# | |____ | | \ \ | |__| | ____) |____) |   | |  | |__| || |__| || |____
+#  \_____||_|  \_\ \____/ |_____/|_____/    |_|   \____/  \____/ |______|
 
 # 目标设置
 # arm   arm-linux-gnueabi
@@ -52,7 +58,7 @@ dir_mpc=mpc-${version_mpc}
 dir_mpfr=mpfr-${version_mpfr}
 dir_isl=isl-${version_isl}
 dir_cloog=cloog-${version_cloog}
-dir_test=test
+dir_test="test"
 
 file_binutils=${dir_binutils}.tar.xz
 file_gcc=${dir_gcc}.tar.xz
@@ -448,7 +454,7 @@ build_program() {
     echo -e "end test compile"
 }
 
-# download_resource
+download_resource
 prepare_resource
 build_binutils
 build_kernel_header
