@@ -68,4 +68,4 @@ host/
 build/
 tarball/
 arm-linux-gnueabihf-gcc/
-gcc-arm-linux-gnueabihf/
+gcc-*

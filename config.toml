@@ -1,0 +1,31 @@
+[arm-linux-gnueabihf]
+   [arm-linux-gnueabihf.gcc]
+   version = "12.2.0"
+
+   [arm-linux-gnueabihf.binutils]
+   version = "2.40"
+
+   [arm-linux-gnueabihf.glibc]
+   version = "2.37"
+
+   [arm-linux-gnueabihf.linux]
+   version = "4.19.259"
+
+   [arm-linux-gnueabihf.gmp]
+   version = "6.2.1"
+
+   [arm-linux-gnueabihf.mpc]
+   version = "1.2.1"
+
+   [arm-linux-gnueabihf.mpfr]
+   version = "4.1.0"
+
+   [arm-linux-gnueabihf.isl]
+   version = "0.24"
+
+   [arm-linux-gnueabihf.cloog]
+   version = "0.18.1"
+
+
+
+
