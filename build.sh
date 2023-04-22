@@ -1,4 +1,9 @@
 #!/bin/bash
+# shellcheck disable=SC2086
+# shellcheck disable=SC1091
+# shellcheck disable=SC2154
+# shellcheck disable=SC2199
+
 #   _____  _____    ____    _____  _____  _______  ____    ____   _
 #  / ____||  __ \  / __ \  / ____|/ ____||__   __|/ __ \  / __ \ | |
 # | |     | |__) || |  | || (___ | (___     | |  | |  | || |  | || |
@@ -6,57 +11,13 @@
 # | |____ | | \ \ | |__| | ____) |____) |   | |  | |__| || |__| || |____
 #  \_____||_|  \_\ \____/ |_____/|_____/    |_|   \____/  \____/ |______|
 
-source env.sh
-
-# 创建临时文件夹
-download_resource()
-{
-    [ -d "${TARBALL_PATH}" ] && rm -rf  "${TARBALL_PATH}"
-    mkdir -p "${TARBALL_PATH}"
-
-    pushd "${TARBALL_PATH}" >> /dev/null || exit
-
-    if [ ! -f "${file_binutils}" ]; then
-        wget https://mirrors.tuna.tsinghua.edu.cn/gnu/binutils/${file_binutils}
-    fi
-    if [ ! -f ${file_gcc} ]; then
-        wget https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/${dir_gcc}/${file_gcc}
-    fi
-    if [ ! -f ${file_gdb} ]; then
-        wget https://mirrors.tuna.tsinghua.edu.cn/gnu/gdb/${file_gdb}
-    fi
-    if [ ! -f ${file_glibc} ]; then
-        wget https://mirrors.tuna.tsinghua.edu.cn/gnu/glibc/${file_glibc}
-    fi
-    if [ ! -f ${file_linux} ]; then
-        wget https://mirrors.tuna.tsinghua.edu.cn/kernel/v4.x/${file_linux}
-    fi
-
-    if [ ! -f ${file_gmp} ]; then
-        wget http://gcc.gnu.org/pub/gcc/infrastructure/${file_gmp}
-    fi
-
-    if [ ! -f ${file_mpfr} ]; then
-        wget http://gcc.gnu.org/pub/gcc/infrastructure/${file_mpfr}
-    fi
-
-    if [ ! -f ${file_mpc} ]; then
-        wget http://gcc.gnu.org/pub/gcc/infrastructure/${file_mpc}
-    fi
-
-    if [ ! -f ${file_isl} ]; then
-        wget http://gcc.gnu.org/pub/gcc/infrastructure/${file_isl}
-    fi
-
-    if [ ! -f ${file_cloog} ]; then
-        wget http://gcc.gnu.org/pub/gcc/infrastructure/${file_cloog}
-    fi
-
-    popd >> /dev/null || exit
-}
+source script/env.sh
 
 prepare_resource()
 {
+    arch=$1
+    target=$2
+
     # 创建目标文件夹
     [ -d "${INSTALL_PATH}" ] && rm -rf  "${INSTALL_PATH}"
     mkdir -p "${INSTALL_PATH}"
@@ -91,20 +52,10 @@ prepare_resource()
     tar -vxf "${TARBALL_PATH}"/${file_mpc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_mpc} to ${BUILD_PATH}\n"
 
-    echo -e "start uncompress ${file_isl} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_isl} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_isl} to ${BUILD_PATH}\n"
-
-    echo -e "start uncompress ${file_cloog} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_cloog} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_cloog} to ${BUILD_PATH}\n"
-
     pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
     ln -s "${BUILD_PATH}"/${dir_gmp} gmp
     ln -s "${BUILD_PATH}"/${dir_mpc} mpc
     ln -s "${BUILD_PATH}"/${dir_mpfr} mpfr
-    ln -s "${BUILD_PATH}"/${dir_isl} isl
-    ln -s "${BUILD_PATH}"/${dir_cloog} cloog
     popd >> /dev/null || exit
 
     # 解压头文件
@@ -124,7 +75,11 @@ prepare_resource()
 }
 
 # 编译binutils
-build_binutils() {
+build_binutils() 
+{
+    arch=$1
+    target=$2
+    
     echo -e "start compile binutils"
     pushd "${BUILD_PATH}"/${dir_binutils} >>/dev/null || exit
     [ -d build ] && rm -rf build
@@ -163,6 +118,9 @@ build_binutils() {
 # 编译内核头文件
 build_kernel_header()
 {
+    arch=$1
+    target=$2
+
     echo -e "start compile linux kernel header"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
     make ARCH=${arch} INSTALL_HDR_PATH="${SYSROOT_PATH}/usr" headers_install || exit
@@ -173,6 +131,9 @@ build_kernel_header()
 # 第一次编译gcc
 build_gcc_stage1()
 {
+    arch=$1
+    target=$2
+
     echo -e "start compile gcc first step"
     pushd "${BUILD_PATH}"/${dir_gcc} >>/dev/null || exit
 
@@ -204,7 +165,11 @@ build_gcc_stage1()
 }
 
 # 第一次编译glibc
-build_glibc_stage1() {
+build_glibc_stage1() 
+{
+    arch=$1
+    target=$2
+
     echo -e "start compile glibc first step"
     pushd "${BUILD_PATH}"/${dir_glibc} >>/dev/null || exit
 
@@ -234,7 +199,11 @@ build_glibc_stage1() {
 }
 
 # 第二次编译gcc
-build_gcc_stage2() {
+build_gcc_stage2() 
+{
+    arch=$1
+    target=$2
+
     echo -e "start compile gcc second step"
     pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
 
@@ -266,7 +235,11 @@ build_gcc_stage2() {
 }
 
 # 第二次编译glibc
-build_glibc_stage2() {
+build_glibc_stage2() 
+{
+    arch=$1
+    target=$2
+
     echo -e "start compile glibc second step"
     pushd "${BUILD_PATH}"/${dir_glibc} >>/dev/null || exit
 
@@ -296,7 +269,11 @@ build_glibc_stage2() {
 }
 
 # 第三次编译gcc
-build_gcc_stage3() {
+build_gcc_stage3() 
+{
+    arch=$1
+    target=$2
+
     echo -e "start compile gcc third step"
 
     pushd "${BUILD_PATH}"/${dir_gcc} >>/dev/null || exit
@@ -328,7 +305,11 @@ build_gcc_stage3() {
     echo -e "end compile gcc third step"
 }
 
-build_gdb() {
+build_gdb() 
+{
+    arch=$1
+    target=$2
+
     echo -e "start build gdb"
     pushd "${BUILD_PATH}"/${dir_gdb} >>/dev/null || exit
     mkdir build && pushd build >> /dev/null || exit
@@ -349,7 +330,10 @@ build_gdb() {
     echo -e "end build gdb"
 }
 
-build_arm32_kernel() {
+build_arm32_kernel() 
+{
+    target=$1
+
     echo -e "start test compile"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
     make ARCH=arm CROSS_COMPILE=${target}- distclean || exit
@@ -359,7 +343,9 @@ build_arm32_kernel() {
     echo -e "end test compile"
 }
 
-build_arm64_kernel() {
+build_arm64_kernel() 
+{
+    target=$1
     echo -e "start test compile"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
     make ARCH=arm64 CROSS_COMPILE=${target}- distclean || exit
@@ -371,14 +357,21 @@ build_arm64_kernel() {
 
 build_kernel()
 {
+    arch=$1
+    target=$2
+
     if [ ${arch} = arm ]; then
-        build_arm32_kernel
+        build_arm32_kernel ${target}
     else
-        build_arm64_kernel
+        build_arm64_kernel ${target}
     fi
 }
 
-build_program() {
+build_program() 
+{
+    arch=$1
+    target=$2
+
     echo -e "start test compile"
     pushd "${ROOT_PATH}"/${dir_test} >>/dev/null || exit
 	${target}-gcc -static test.c -o test.elf
@@ -391,19 +384,93 @@ build_program() {
     echo -e "end test compile"
 }
 
+usage()
+{
+    echo "
+    Usage:
+    -a, --arch        set arch
+    -t, --target      set target
+    -h, --help        display this help and exit
+    "
+}
+
+check_param()
+{
+    arch=$1
+    target=$2
+
+    if [[ "${arch_list[@]}" =~ ${arch} ]]; then
+        echo "chec succ"
+    else
+        echo "chec fail"
+        return 1
+    fi
+
+    if [[ "${target_list[@]}" =~ ${target} ]]; then
+        echo "chec succ"
+    else
+        echo "chec fail"
+        return 1
+    fi
+
+
+}
+
 #################################################################
 #                   脚本构建起点                                #
 #################################################################
 
-download_resource
-prepare_resource
-build_binutils
-build_kernel_header
-build_gcc_stage1
-build_glibc_stage1
-build_gcc_stage2
-build_glibc_stage2
-build_gcc_stage3
-build_gdb
-build_kernel
-build_program
+arch=arm64
+target=aarch64-linux-gnueabi
+
+ARGS=$(getopt -o a:t: -l arch:,target: -- "$@")
+if [ $? != 0 ] ; then 
+    echo "args parse error" >&2 
+    exit
+fi
+
+eval set -- "${ARGS}"
+ 
+while true; do
+    case "${1}" in
+        -a|--arch)
+        arch=${2}
+        shift 2
+        ;;
+
+        -t|--target)
+        target=${2}
+        shift 2
+        ;;
+        
+        --)
+        shift
+        break
+        ;;
+        
+        *)
+        usage
+        exit
+        ;;
+    esac
+done
+
+export BUILD_PATH=${ROOT_PATH}/build
+export TARBALL_PATH=${ROOT_PATH}/tarball
+export PATCHES_PATH=${ROOT_PATH}/patches
+export INSTALL_PATH=${ROOT_PATH}/gcc-${target}
+export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
+export PATH=${INSTALL_PATH}/bin:${PATH}
+
+check_param             ${arch} ${target}   || exit 
+prepare_resource        ${arch} ${target}   || exit
+build_binutils          ${arch} ${target}   || exit
+build_kernel_header     ${arch} ${target}   || exit
+build_gcc_stage1        ${arch} ${target}   || exit
+build_glibc_stage1      ${arch} ${target}   || exit
+build_gcc_stage2        ${arch} ${target}   || exit
+build_glibc_stage2      ${arch} ${target}   || exit
+build_gcc_stage3        ${arch} ${target}   || exit
+build_gdb               ${arch} ${target}   || exit
+build_kernel            ${arch} ${target}   || exit
+build_program           ${arch} ${target}   || exit
