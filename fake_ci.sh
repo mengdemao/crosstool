@@ -15,6 +15,9 @@
 
 export CI_ENV=true
 
+export CFLAGS="-w"
+export CXXFLAGS="-w"
+
 ./scripts/download.sh
 
 ./build.sh --arch=arm --target=arm-linux-gnueabi 

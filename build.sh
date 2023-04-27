@@ -27,13 +27,13 @@ prepare_resource()
     mkdir -p "${BUILD_PATH}"
 
     # 解压binutils
-    echo -e "start uncompress ${file_binutils} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_binutils} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_binutils} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_binutils} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_binutils} to ${BUILD_PATH}\n"
 
     # 解压gcc
-    echo -e "start uncompress ${file_gcc} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_gcc} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_gcc} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_gcc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_gcc} to ${BUILD_PATH}\n"
 
     # 打入补丁
@@ -41,37 +41,39 @@ prepare_resource()
     patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch
     popd >> /dev/null || exit
 
-    echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_gmp} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_gmp} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_gmp} to ${BUILD_PATH}\n"
 
-    echo -e "start uncompress ${file_mpfr} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_mpfr} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_mpfr} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_mpfr} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_mpfr} to ${BUILD_PATH}\n"
 
-    echo -e "start uncompress ${file_mpc} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_mpc} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_mpc} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_mpc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_mpc} to ${BUILD_PATH}\n"
 
+    echo -e "start add soft link to ${BUILD_PATH}"
     pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
     ln -s "${BUILD_PATH}"/${dir_gmp} gmp
     ln -s "${BUILD_PATH}"/${dir_mpc} mpc
     ln -s "${BUILD_PATH}"/${dir_mpfr} mpfr
     popd >> /dev/null || exit
+    echo -e "end add soft link  to ${BUILD_PATH}\n"
 
     # 解压头文件
-    echo -e "start uncompress ${file_linux} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_linux} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_linux} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_linux} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_linux} to ${BUILD_PATH}\n"
 
     # 解压glibc
-    echo -e "start uncompress ${file_glibc} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_glibc} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_glibc} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_glibc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_glibc} to ${BUILD_PATH}\n"
 
     # 解压glibc
-    echo -e "start uncompress ${file_gdb} to ${BUILD_PATH}\n"
-    tar -vxf "${TARBALL_PATH}"/${file_gdb} -C "${BUILD_PATH}"
+    echo -e "start uncompress ${file_gdb} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_gdb} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_gdb} to ${BUILD_PATH}\n"
 }
 
@@ -401,16 +403,16 @@ check_param()
     target=$2
 
     if [[ "${arch_list[@]}" =~ ${arch} ]]; then
-        echo "chec succ"
+        echo -e "chec succ ${arch}"
     else
-        echo "chec fail"
+        echo -e "chec fail ${arch}"
         return 1
     fi
 
     if [[ "${target_list[@]}" =~ ${target} ]]; then
-        echo "chec succ"
+        echo -e "chec succ ${target}\n" 
     else
-        echo "chec fail"
+        echo -e "chec fail ${target}\n"
         return 1
     fi
 
@@ -462,13 +464,13 @@ export PATH=${INSTALL_PATH}/bin:${PATH}
 
 check_param             ${arch} ${target}   || exit 
 prepare_resource        ${arch} ${target}   || exit
-build_binutils          ${arch} ${target}   || exit
-build_kernel_header     ${arch} ${target}   || exit
-build_gcc_stage1        ${arch} ${target}   || exit
-build_glibc_stage1      ${arch} ${target}   || exit
-build_gcc_stage2        ${arch} ${target}   || exit
-build_glibc_stage2      ${arch} ${target}   || exit
-build_gcc_stage3        ${arch} ${target}   || exit
-build_gdb               ${arch} ${target}   || exit
-build_kernel            ${arch} ${target}   || exit
-build_program           ${arch} ${target}   || exit
+# build_binutils          ${arch} ${target}   || exit
+# build_kernel_header     ${arch} ${target}   || exit
+# build_gcc_stage1        ${arch} ${target}   || exit
+# build_glibc_stage1      ${arch} ${target}   || exit
+# build_gcc_stage2        ${arch} ${target}   || exit
+# build_glibc_stage2      ${arch} ${target}   || exit
+# build_gcc_stage3        ${arch} ${target}   || exit
+# build_gdb               ${arch} ${target}   || exit
+# build_kernel            ${arch} ${target}   || exit
+# build_program           ${arch} ${target}   || exit
