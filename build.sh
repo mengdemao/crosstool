@@ -464,13 +464,13 @@ export PATH=${INSTALL_PATH}/bin:${PATH}
 
 check_param             ${arch} ${target}   || exit 
 prepare_resource        ${arch} ${target}   || exit
-# build_binutils          ${arch} ${target}   || exit
-# build_kernel_header     ${arch} ${target}   || exit
-# build_gcc_stage1        ${arch} ${target}   || exit
-# build_glibc_stage1      ${arch} ${target}   || exit
-# build_gcc_stage2        ${arch} ${target}   || exit
-# build_glibc_stage2      ${arch} ${target}   || exit
-# build_gcc_stage3        ${arch} ${target}   || exit
-# build_gdb               ${arch} ${target}   || exit
-# build_kernel            ${arch} ${target}   || exit
-# build_program           ${arch} ${target}   || exit
+build_binutils          ${arch} ${target}   || exit
+build_kernel_header     ${arch} ${target}   || exit
+build_gcc_stage1        ${arch} ${target}   || exit
+build_glibc_stage1      ${arch} ${target}   || exit
+build_gcc_stage2        ${arch} ${target}   || exit
+build_glibc_stage2      ${arch} ${target}   || exit
+build_gcc_stage3        ${arch} ${target}   || exit
+build_gdb               ${arch} ${target}   || exit
+build_kernel            ${arch} ${target}   || exit
+build_program           ${arch} ${target}   || exit

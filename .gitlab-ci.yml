@@ -4,7 +4,7 @@ build:
   stage: build
   
   before_script:
-    - apt update && apt -y install make autoconf flex bison wget 
+    - apt update && apt -y upgrade && apt -y install make autoconf flex bison wget texinfo shellcheck
   
   script:
-    - ./fake_ci.sh
+    - shellcheck build.sh

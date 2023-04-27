@@ -20,7 +20,7 @@ export CXXFLAGS="-w"
 
 ./scripts/download.sh
 
-./build.sh --arch=arm --target=arm-linux-gnueabi 
-./build.sh --arch=arm --target=arm-linux-gnueabihf 
-./build.sh --arch=aarch64 --target=aarch64-linux-gnueabi 
-./build.sh --arch=aarch64 --target=aarch64-linux-gnueabihf
+./build.sh --arch=arm   --target=arm-linux-gnueabi 
+./build.sh --arch=arm   --target=arm-linux-gnueabihf 
+./build.sh --arch=arm64 --target=aarch64-linux-gnueabi 
+./build.sh --arch=arm64 --target=aarch64-linux-gnueabihf
