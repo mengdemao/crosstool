@@ -1,17 +1,21 @@
 #!/bin/bash
 # shellcheck disable=SC2034
 # shellcheck disable=SC1091
-
+# shellcheck disable=SC2155
 # 目标设置
 
 target_list=(arm-linux-gnueabi arm-linux-gnueabihf aarch64-linux-gnueabi aarch64-linux-gnueabihf)
 arch_list=(arm arm64)
 
 # 目录设置
-ROOT_PATH=$(pwd)
+export ROOT_PATH=$(git rev-parse --show-toplevel)
+export BUILD_PATH=${ROOT_PATH}/build
+export TARBALL_PATH=${ROOT_PATH}/tarball
+export PATCHES_PATH=${ROOT_PATH}/patches
+export SCRIPTS_PATH=${ROOT_PATH}/scripts
 
 # 编译CPU数
-NJOBS=6
+NJOBS=$(nproc)
 
 version_compile=1.1
 version_gcc=12.2.0

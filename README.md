@@ -2,6 +2,19 @@
 
 交叉工具链构建
 
+## 构建方法
+
+```shell
+# 下载GCC源码
+bash ./scripts/download.sh
+
+# 执行构建
+./build.sh --arch=arm --target=arm-linux-gnueabi
+./build.sh --arch=arm --target=arm-linux-gnueabihf
+./build.sh --arch=aarch64 --target=aarch64-linux-gnueabi
+./build.sh --arch=aarch64 --target=aarch64-linux-gnueabihf
+```
+
 ## 设置全局变量
 
 ```shell

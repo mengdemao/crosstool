@@ -3,6 +3,7 @@
 # shellcheck disable=SC1091
 # shellcheck disable=SC2154
 # shellcheck disable=SC2199
+# shellcheck disable=SC2181
 
 #   _____  _____    ____    _____  _____  _______  ____    ____   _
 #  / ____||  __ \  / __ \  / ____|/ ____||__   __|/ __ \  / __ \ | |
@@ -11,7 +12,7 @@
 # | |____ | | \ \ | |__| | ____) |____) |   | |  | |__| || |__| || |____
 #  \_____||_|  \_\ \____/ |_____/|_____/    |_|   \____/  \____/ |______|
 
-source script/env.sh
+source scripts/env.sh
 
 prepare_resource()
 {
@@ -455,9 +456,6 @@ while true; do
     esac
 done
 
-export BUILD_PATH=${ROOT_PATH}/build
-export TARBALL_PATH=${ROOT_PATH}/tarball
-export PATCHES_PATH=${ROOT_PATH}/patches
 export INSTALL_PATH=${ROOT_PATH}/gcc-${target}
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 export PATH=${INSTALL_PATH}/bin:${PATH}
