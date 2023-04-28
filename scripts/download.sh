@@ -18,7 +18,7 @@ source scripts/env.sh
 gnu_mirror=https://mirrors.tuna.tsinghua.edu.cn
 kernel_mirror=https://mirrors.tuna.tsinghua.edu.cn
 
-if [ $CI_ENV = true ]; then
+if [ $CI_ENV ]; then
     gnu_mirror=https://ftp.gnu.org/ 
     kernel_mirror=https://mirrors.edge.kernel.org/pub/linux
 fi
@@ -26,37 +26,42 @@ fi
 # 下载源码
 download_resource()
 {
-    [ -d "${TARBALL_PATH}" ] && rm -rf  "${TARBALL_PATH}"
-    mkdir -p "${TARBALL_PATH}"
+    if [ ! -d "${TARBALL_PATH}" ]; then
+        mkdir -p "${TARBALL_PATH}"
+    fi
 
     pushd "${TARBALL_PATH}" >> /dev/null || exit
 
     if [ ! -f "${file_binutils}" ]; then
-        wget ${gnu_mirror}/gnu/binutils/${file_binutils}
+        wget -nv ${gnu_mirror}/gnu/binutils/${file_binutils}
     fi
     if [ ! -f ${file_gcc} ]; then
-        wget ${gnu_mirror}/gnu/gcc/${dir_gcc}/${file_gcc}
+        wget -nv ${gnu_mirror}/gnu/gcc/${dir_gcc}/${file_gcc}
     fi
     if [ ! -f ${file_gdb} ]; then
-        wget ${gnu_mirror}/gnu/gdb/${file_gdb}
+        wget -nv ${gnu_mirror}/gnu/gdb/${file_gdb}
     fi
     if [ ! -f ${file_glibc} ]; then
-        wget ${gnu_mirror}/gnu/glibc/${file_glibc}
+        wget -nv ${gnu_mirror}/gnu/glibc/${file_glibc}
     fi
     if [ ! -f ${file_linux} ]; then
-        wget ${kernel_mirror}/kernel/v4.x/${file_linux}
+        wget -nv ${kernel_mirror}/kernel/v4.x/${file_linux}
     fi
 
     if [ ! -f ${file_gmp} ]; then
-        wget ${gnu_mirror}/gnu/gmp/${file_gmp}
+        wget -nv ${gnu_mirror}/gnu/gmp/${file_gmp}
     fi
 
     if [ ! -f ${file_mpfr} ]; then
-        wget ${gnu_mirror}/gnu/mpfr/${file_mpfr}
+        wget -nv ${gnu_mirror}/gnu/mpfr/${file_mpfr}
     fi
 
     if [ ! -f ${file_mpc} ]; then
-        wget ${gnu_mirror}/gnu/mpc/${file_mpc}
+        wget -nv ${gnu_mirror}/gnu/mpc/${file_mpc}
+    fi
+
+    if [ ! -f ${file_isl} ]; then
+         wget -nv https://libisl.sourceforge.io/${file_isl}
     fi
 
     popd >> /dev/null || exit

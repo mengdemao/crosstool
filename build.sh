@@ -12,6 +12,8 @@
 # | |____ | | \ \ | |__| | ____) |____) |   | |  | |__| || |__| || |____
 #  \_____||_|  \_\ \____/ |_____/|_____/    |_|   \____/  \____/ |______|
 
+set -e
+
 source scripts/env.sh
 
 prepare_resource()
@@ -38,7 +40,7 @@ prepare_resource()
 
     # 打入补丁
     pushd "${BUILD_PATH}/${dir_gcc}" >> /dev/null || exit
-    patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch
+    patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null
     popd >> /dev/null || exit
 
     echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}"
@@ -53,11 +55,16 @@ prepare_resource()
     tar -xf "${TARBALL_PATH}"/${file_mpc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_mpc} to ${BUILD_PATH}\n"
 
+    echo -e "start uncompress ${file_isl} to ${BUILD_PATH}"
+    tar -xf "${TARBALL_PATH}"/${file_isl} -C "${BUILD_PATH}"
+    echo -e "end uncompress ${file_isl} to ${BUILD_PATH}\n"
+
     echo -e "start add soft link to ${BUILD_PATH}"
     pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
     ln -s "${BUILD_PATH}"/${dir_gmp} gmp
     ln -s "${BUILD_PATH}"/${dir_mpc} mpc
     ln -s "${BUILD_PATH}"/${dir_mpfr} mpfr
+    ln -s "${BUILD_PATH}"/${dir_isl} isl
     popd >> /dev/null || exit
     echo -e "end add soft link  to ${BUILD_PATH}\n"
 
@@ -70,11 +77,6 @@ prepare_resource()
     echo -e "start uncompress ${file_glibc} to ${BUILD_PATH}"
     tar -xf "${TARBALL_PATH}"/${file_glibc} -C "${BUILD_PATH}"
     echo -e "end uncompress ${file_glibc} to ${BUILD_PATH}\n"
-
-    # 解压glibc
-    echo -e "start uncompress ${file_gdb} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_gdb} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_gdb} to ${BUILD_PATH}\n"
 }
 
 # 编译binutils
@@ -192,7 +194,7 @@ build_glibc_stage1()
         libc_cv_c_cleanup=yes                         \
         with_selinux=no || exit
     make install-bootstrap-headers=yes install-headers || exit
-    make -j"${NJOBS}" csu/subdir_lib
+    make csu/subdir_lib || exit
     install csu/crt1.o csu/crti.o csu/crtn.o "${INSTALL_PATH}"/${target}/lib
     ${target}-gcc -nostdlib -nostartfiles -shared -x c /dev/null -o "${INSTALL_PATH}"/${target}/lib/libc.so
     touch "${INSTALL_PATH}"/${target}/include/gnu/stubs.h
@@ -308,31 +310,6 @@ build_gcc_stage3()
     echo -e "end compile gcc third step"
 }
 
-build_gdb() 
-{
-    arch=$1
-    target=$2
-
-    echo -e "start build gdb"
-    pushd "${BUILD_PATH}"/${dir_gdb} >>/dev/null || exit
-    mkdir build && pushd build >> /dev/null || exit
-    ../configure \
-        --enable-targets=${target} \
-        --prefix="${INSTALL_PATH}" \
-        --enable-languages=all \
-        --disable-multilib \
-        --enable-interwork \
-        --with-system-readline \
-        --disable-nls \
-        --with-python=/usr/bin/python \
-        --with-system-gdbinit=/etc/gdb/gdbinit
-    make "-j ${NJOBS}"
-    make install
-    popd >> /dev/null || exit
-    popd >>/dev/null || exit
-    echo -e "end build gdb"
-}
-
 build_arm32_kernel() 
 {
     target=$1
@@ -403,20 +380,28 @@ check_param()
     target=$2
 
     if [[ "${arch_list[@]}" =~ ${arch} ]]; then
-        echo -e "chec succ ${arch}"
+        echo -e "check success ${arch}"
     else
-        echo -e "chec fail ${arch}"
+        echo -e "check failure ${arch}"
         return 1
     fi
 
     if [[ "${target_list[@]}" =~ ${target} ]]; then
-        echo -e "chec succ ${target}\n" 
+        echo -e "check success ${target}\n" 
     else
-        echo -e "chec fail ${target}\n"
+        echo -e "check failure ${target}\n"
         return 1
     fi
+}
 
-
+archive_compiler()
+{
+    arch=$1
+    target=$2
+    pushd ${OUTPUTS_PATH} >> /dev/null || exit
+    tar -cf gcc-${target}.tar.xz gcc-${target}
+    rm -rf gcc-${target}
+    popd >> /dev/null || exit
 }
 
 #################################################################
@@ -458,7 +443,7 @@ while true; do
     esac
 done
 
-export INSTALL_PATH=${ROOT_PATH}/gcc-${target}
+export INSTALL_PATH=${OUTPUTS_PATH}/gcc-${target}
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 export PATH=${INSTALL_PATH}/bin:${PATH}
 
@@ -471,6 +456,6 @@ build_glibc_stage1      ${arch} ${target}   || exit
 build_gcc_stage2        ${arch} ${target}   || exit
 build_glibc_stage2      ${arch} ${target}   || exit
 build_gcc_stage3        ${arch} ${target}   || exit
-build_gdb               ${arch} ${target}   || exit
 build_kernel            ${arch} ${target}   || exit
 build_program           ${arch} ${target}   || exit
+archive_compiler        ${arch} ${target}   || exit
