@@ -14,7 +14,7 @@
 
 export CI_ENV=true
 
-./scripts/prepase.sh
+./scripts/prepare.sh
 
 ./build.sh --arch=arm   --target=arm-linux-gnueabi          || exit
 ./build.sh --arch=arm   --target=arm-linux-gnueabihf        || exit
