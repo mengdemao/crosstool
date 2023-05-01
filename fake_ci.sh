@@ -12,10 +12,9 @@
 # | |____ | | \ \ | |__| | ____) |____) |   | |  | |__| || |__| || |____
 #  \_____||_|  \_\ \____/ |_____/|_____/    |_|   \____/  \____/ |______|
 
-
 export CI_ENV=true
 
-./scripts/download.sh
+./scripts/prepase.sh
 
 ./build.sh --arch=arm   --target=arm-linux-gnueabi          || exit
 ./build.sh --arch=arm   --target=arm-linux-gnueabihf        || exit

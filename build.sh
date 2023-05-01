@@ -16,78 +16,16 @@ set -e
 
 source scripts/env.sh
 
-prepare_resource()
-{
-    arch=$1
-    target=$2
-
-    # 创建目标文件夹
-    [ -d "${INSTALL_PATH}" ] && rm -rf  "${INSTALL_PATH}"
-    mkdir -p "${INSTALL_PATH}"
-
-    [ -d "${BUILD_PATH}" ] && rm -rf  "${BUILD_PATH}"
-    mkdir -p "${BUILD_PATH}"
-
-    # 解压binutils
-    echo -e "start uncompress ${file_binutils} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_binutils} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_binutils} to ${BUILD_PATH}\n"
-
-    # 解压gcc
-    echo -e "start uncompress ${file_gcc} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_gcc} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_gcc} to ${BUILD_PATH}\n"
-
-    # 打入补丁
-    pushd "${BUILD_PATH}/${dir_gcc}" >> /dev/null || exit
-    patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null
-    popd >> /dev/null || exit
-
-    echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_gmp} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_gmp} to ${BUILD_PATH}\n"
-
-    echo -e "start uncompress ${file_mpfr} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_mpfr} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_mpfr} to ${BUILD_PATH}\n"
-
-    echo -e "start uncompress ${file_mpc} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_mpc} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_mpc} to ${BUILD_PATH}\n"
-
-    echo -e "start uncompress ${file_isl} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_isl} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_isl} to ${BUILD_PATH}\n"
-
-    echo -e "start add soft link to ${BUILD_PATH}"
-    pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
-    ln -s "${BUILD_PATH}"/${dir_gmp} gmp
-    ln -s "${BUILD_PATH}"/${dir_mpc} mpc
-    ln -s "${BUILD_PATH}"/${dir_mpfr} mpfr
-    ln -s "${BUILD_PATH}"/${dir_isl} isl
-    popd >> /dev/null || exit
-    echo -e "end add soft link  to ${BUILD_PATH}\n"
-
-    # 解压头文件
-    echo -e "start uncompress ${file_linux} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_linux} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_linux} to ${BUILD_PATH}\n"
-
-    # 解压glibc
-    echo -e "start uncompress ${file_glibc} to ${BUILD_PATH}"
-    tar -xf "${TARBALL_PATH}"/${file_glibc} -C "${BUILD_PATH}"
-    echo -e "end uncompress ${file_glibc} to ${BUILD_PATH}\n"
-}
-
 # 编译binutils
-build_binutils() 
+build_binutils()
 {
     arch=$1
     target=$2
-    
+
     echo -e "start compile binutils"
     pushd "${BUILD_PATH}"/${dir_binutils} >>/dev/null || exit
     [ -d build ] && rm -rf build
+
     mkdir build
     pushd build >>/dev/null || exit
 
@@ -116,6 +54,8 @@ build_binutils()
     make install || exit
 
     popd >>/dev/null || exit
+    rm -rf build
+
     popd >>/dev/null || exit
     echo -e "end compile binutils"
 }
@@ -165,12 +105,14 @@ build_gcc_stage1()
     make install-gcc -j "${NJOBS}" || exit
 
     popd >>/dev/null || exit
+    rm -rf build_gcc_stage1
+
     popd >>/dev/null || exit
     echo -e "end compile gcc first step"
 }
 
 # 第一次编译glibc
-build_glibc_stage1() 
+build_glibc_stage1()
 {
     arch=$1
     target=$2
@@ -198,13 +140,16 @@ build_glibc_stage1()
     install csu/crt1.o csu/crti.o csu/crtn.o "${INSTALL_PATH}"/${target}/lib
     ${target}-gcc -nostdlib -nostartfiles -shared -x c /dev/null -o "${INSTALL_PATH}"/${target}/lib/libc.so
     touch "${INSTALL_PATH}"/${target}/include/gnu/stubs.h
+
     popd >>/dev/null || exit
+    rm -rf build_glibc_stage1
+
     popd >>/dev/null || exit
     echo -e "end compile glibc first step"
 }
 
 # 第二次编译gcc
-build_gcc_stage2() 
+build_gcc_stage2()
 {
     arch=$1
     target=$2
@@ -235,12 +180,14 @@ build_gcc_stage2()
     make install-target-libgcc -j "${NJOBS}" || exit
 
     popd >>/dev/null || exit
+    rm -rf build_gcc_stage2
+
     popd >> /dev/null || exit
     echo -e "end compile gcc second step"
 }
 
 # 第二次编译glibc
-build_glibc_stage2() 
+build_glibc_stage2()
 {
     arch=$1
     target=$2
@@ -269,12 +216,14 @@ build_glibc_stage2()
     make install -j "${NJOBS}" || exit
 
     popd >>/dev/null || exit
+    rm -rf build_glibc_stage2
+
     popd >>/dev/null || exit
     echo -e "end compile glibc second step"
 }
 
 # 第三次编译gcc
-build_gcc_stage3() 
+build_gcc_stage3()
 {
     arch=$1
     target=$2
@@ -306,11 +255,13 @@ build_gcc_stage3()
     make install -j "${NJOBS}" || exit
 
     popd >> /dev/null || exit
+    rm -rf build_gcc_stage3
+
     popd >> /dev/null || exit
     echo -e "end compile gcc third step"
 }
 
-build_arm32_kernel() 
+build_arm32_kernel()
 {
     target=$1
 
@@ -323,7 +274,7 @@ build_arm32_kernel()
     echo -e "end test compile"
 }
 
-build_arm64_kernel() 
+build_arm64_kernel()
 {
     target=$1
     echo -e "start test compile"
@@ -347,7 +298,7 @@ build_kernel()
     fi
 }
 
-build_program() 
+build_program()
 {
     arch=$1
     target=$2
@@ -387,7 +338,7 @@ check_param()
     fi
 
     if [[ "${target_list[@]}" =~ ${target} ]]; then
-        echo -e "check success ${target}\n" 
+        echo -e "check success ${target}\n"
     else
         echo -e "check failure ${target}\n"
         return 1
@@ -412,13 +363,13 @@ arch=arm64
 target=aarch64-linux-gnueabi
 
 ARGS=$(getopt -o a:t: -l arch:,target: -- "$@")
-if [ $? != 0 ] ; then 
-    echo "args parse error" >&2 
+if [ $? != 0 ] ; then
+    echo "args parse error" >&2
     exit
 fi
 
 eval set -- "${ARGS}"
- 
+
 while true; do
     case "${1}" in
         -a|--arch)
@@ -430,12 +381,12 @@ while true; do
         target=${2}
         shift 2
         ;;
-        
+
         --)
         shift
         break
         ;;
-        
+
         *)
         usage
         exit
@@ -447,8 +398,11 @@ export INSTALL_PATH=${OUTPUTS_PATH}/gcc-${target}
 export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
 export PATH=${INSTALL_PATH}/bin:${PATH}
 
-check_param             ${arch} ${target}   || exit 
-prepare_resource        ${arch} ${target}   || exit
+# 创建目标文件夹
+[ -d "${INSTALL_PATH}" ] && rm -rf  "${INSTALL_PATH}"
+mkdir -p "${INSTALL_PATH}"
+
+check_param             ${arch} ${target}   || exit
 build_binutils          ${arch} ${target}   || exit
 build_kernel_header     ${arch} ${target}   || exit
 build_gcc_stage1        ${arch} ${target}   || exit
