@@ -42,7 +42,7 @@ if [ ! -f ${file_glibc} ]; then
     wget -nv ${gnu_mirror}/gnu/glibc/${file_glibc}
 fi
 if [ ! -f ${file_linux} ]; then
-    wget -nv ${kernel_mirror}/kernel/v4.x/${file_linux}
+    wget -nv ${kernel_mirror}/kernel/v6.x/${file_linux}
 fi
 
 if [ ! -f ${file_gmp} ]; then
