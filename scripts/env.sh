@@ -16,12 +16,12 @@ export SCRIPTS_PATH=${ROOT_PATH}/scripts
 export OUTPUTS_PATH=${ROOT_PATH}/outputs
 
 # 编译CPU数
-NJOBS=2
+NJOBS=$(nproc)
 
 version_compile=1.1
 version_gcc=12.2.0
 version_binutil=2.40
-version_glic=2.36
+version_glic=2.37
 version_linux=4.19.279
 version_gmp=6.2.1
 version_mpc=1.3.1
