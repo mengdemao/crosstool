@@ -19,7 +19,7 @@ export OUTPUTS_PATH=${ROOT_PATH}/outputs
 NJOBS=$(nproc)
 
 version_compile=1.1
-version_gcc=12.2.0
+version_gcc=13.1.0
 version_binutil=2.40
 version_glic=2.37
 version_linux=6.1.27

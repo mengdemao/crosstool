@@ -97,15 +97,6 @@ echo -e "start uncompress ${file_isl} to ${BUILD_PATH}"
 tar -xf "${TARBALL_PATH}"/${file_isl} -C "${BUILD_PATH}"
 echo -e "end uncompress ${file_isl} to ${BUILD_PATH}\n"
 
-echo -e "start add soft link to ${BUILD_PATH}"
-pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
-ln -s "${BUILD_PATH}"/${dir_gmp} gmp
-ln -s "${BUILD_PATH}"/${dir_mpc} mpc
-ln -s "${BUILD_PATH}"/${dir_mpfr} mpfr
-ln -s "${BUILD_PATH}"/${dir_isl} isl
-popd >> /dev/null || exit
-echo -e "end add soft link  to ${BUILD_PATH}\n"
-
 # 解压头文件
 echo -e "start uncompress ${file_linux} to ${BUILD_PATH}"
 tar -xf "${TARBALL_PATH}"/${file_linux} -C "${BUILD_PATH}"
@@ -115,3 +106,44 @@ echo -e "end uncompress ${file_linux} to ${BUILD_PATH}\n"
 echo -e "start uncompress ${file_glibc} to ${BUILD_PATH}"
 tar -xf "${TARBALL_PATH}"/${file_glibc} -C "${BUILD_PATH}"
 echo -e "end uncompress ${file_glibc} to ${BUILD_PATH}\n"
+
+build_hosttool()
+{
+    pushd ${BUILD_PATH}/${dir_gmp} >> /dev/null || exit
+    mkdir build && pushd build  >> /dev/null || exit
+    ../configure
+    make -j${NJOBS}
+    make check -j${NJOBS}
+    sudo make install
+    popd >> /dev/null
+    popd >> /dev/null
+
+    pushd ${BUILD_PATH}/${dir_mpfr} >> /dev/null || exit
+    mkdir build && pushd build  >> /dev/null || exit
+    ../configure
+    make -j${NJOBS}
+    make check -j${NJOBS}
+    sudo make install
+    popd >> /dev/null
+    popd >> /dev/null
+
+    pushd ${BUILD_PATH}/${dir_mpc} >> /dev/null || exit
+    mkdir build && pushd build  >> /dev/null || exit
+    ../configure
+    make -j${NJOBS}
+    make check -j${NJOBS}
+    sudo make install -j${NJOBS}
+    popd >> /dev/null
+    popd >> /dev/null
+
+    pushd ${BUILD_PATH}/${dir_isl} >> /dev/null || exit
+    mkdir build && pushd build  >> /dev/null || exit
+    ../configure
+    make -j${NJOBS}
+    make check -j${NJOBS}
+    sudo make install -j${NJOBS}
+    popd >> /dev/null
+    popd >> /dev/null
+}
+
+time build_hosttool

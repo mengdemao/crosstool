@@ -12,7 +12,7 @@
 # | |____ | | \ \ | |__| | ____) |____) |   | |  | |__| || |__| || |____
 #  \_____||_|  \_\ \____/ |_____/|_____/    |_|   \____/  \____/ |______|
 
-set -e
+set -euox pipefail
 
 source scripts/env.sh
 
@@ -33,8 +33,6 @@ build_binutils()
         --prefix="${INSTALL_PATH}" \
         --target=${target} \
         --with-sysroot="${SYSROOT_PATH}" \
-        --with-lib-path="${INSTALL_PATH}"/lib \
-        --with-pkgversion="Fly Box ${version_compile}" \
         --disable-werror \
         --disable-multilib \
         --enable-lto \
@@ -89,6 +87,7 @@ build_gcc_stage1()
         --target=${target} \
         --prefix="${INSTALL_PATH}" \
         --with-sysroot="${SYSROOT_PATH}" \
+        --with-build-sysroot="${SYSROOT_PATH}" \
         --with-glibc-version=${version_glic} \
         --with-system-zlib \
         --disable-bootstrap \
