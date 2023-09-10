@@ -58,7 +58,7 @@ if [ ! -f ${file_mpc} ]; then
 fi
 
 if [ ! -f ${file_isl} ]; then
-        wget -nv https://libisl.sourceforge.io/${file_isl}
+    wget -nv https://libisl.sourceforge.io/${file_isl}
 fi
 
 popd >> /dev/null || exit
@@ -78,7 +78,7 @@ echo -e "end uncompress ${file_gcc} to ${BUILD_PATH}\n"
 
 # 打入补丁
 pushd "${BUILD_PATH}/${dir_gcc}" >> /dev/null || exit
-patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null
+patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null || exit
 popd >> /dev/null || exit
 
 echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}"
@@ -111,37 +111,42 @@ build_hosttool()
 {
     pushd ${BUILD_PATH}/${dir_gmp} >> /dev/null || exit
     mkdir build && pushd build  >> /dev/null || exit
-    ../configure
+    ../configure --prefix="${HOST_PATH}"
     make -j${NJOBS}
     make check -j${NJOBS}
-    sudo make install
+    make install
     popd >> /dev/null
     popd >> /dev/null
 
     pushd ${BUILD_PATH}/${dir_mpfr} >> /dev/null || exit
     mkdir build && pushd build  >> /dev/null || exit
-    ../configure
+    ../configure --prefix="${HOST_PATH}" --with-gmp="${HOST_PATH}"
     make -j${NJOBS}
     make check -j${NJOBS}
-    sudo make install
+    make install
     popd >> /dev/null
     popd >> /dev/null
 
     pushd ${BUILD_PATH}/${dir_mpc} >> /dev/null || exit
     mkdir build && pushd build  >> /dev/null || exit
-    ../configure
+    ../configure \
+        --prefix="${HOST_PATH}" \
+        --with-mpfr="${HOST_PATH}" \
+        --with-gmp="${HOST_PATH}"
     make -j${NJOBS}
     make check -j${NJOBS}
-    sudo make install -j${NJOBS}
+    make install -j${NJOBS}
     popd >> /dev/null
     popd >> /dev/null
 
     pushd ${BUILD_PATH}/${dir_isl} >> /dev/null || exit
     mkdir build && pushd build  >> /dev/null || exit
-    ../configure
+    ../configure \
+        --prefix="${HOST_PATH}" \
+        --with-gmp-prefix="${HOST_PATH}"
     make -j${NJOBS}
     make check -j${NJOBS}
-    sudo make install -j${NJOBS}
+    make install -j${NJOBS}
     popd >> /dev/null
     popd >> /dev/null
 }
