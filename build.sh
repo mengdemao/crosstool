@@ -12,7 +12,7 @@
 # | |____ | | \ \ | |__| | ____) |____) |   | |  | |__| || |__| || |____
 #  \_____||_|  \_\ \____/ |_____/|_____/    |_|   \____/  \____/ |______|
 
-set -e
+set -euox pipefail
 
 source scripts/env.sh
 
@@ -33,8 +33,6 @@ build_binutils()
         --prefix="${INSTALL_PATH}" \
         --target=${target} \
         --with-sysroot="${SYSROOT_PATH}" \
-        --with-lib-path="${INSTALL_PATH}"/lib \
-        --with-pkgversion="Fly Box ${version_compile}" \
         --disable-werror \
         --disable-multilib \
         --enable-lto \
@@ -88,7 +86,12 @@ build_gcc_stage1()
     ../configure \
         --target=${target} \
         --prefix="${INSTALL_PATH}" \
+        --with-mpfr="${HOST_PATH}" \
+        --with-gmp="${HOST_PATH}" \
+        --with-mpc="${HOST_PATH}" \
+        --with-isl="${HOST_PATH}" \
         --with-sysroot="${SYSROOT_PATH}" \
+        --with-build-sysroot="${SYSROOT_PATH}" \
         --with-glibc-version=${version_glic} \
         --with-system-zlib \
         --disable-bootstrap \
@@ -128,7 +131,7 @@ build_glibc_stage1()
         --host=${target} \
         --target=${target} \
         --build="$(../scripts/config.guess)" \
-        --enable-kernel=3.2 \
+        --enable-kernel=4.14 \
         --with-headers="${SYSROOT_PATH}"/usr/include \
         --disable-multilib \
         libc_cv_forced_unwind=yes                     \
@@ -163,8 +166,15 @@ build_gcc_stage2()
     ../configure \
         --target=${target} \
         --prefix="${INSTALL_PATH}" \
-        --with-sysroot="${SYSROOT_PATH}" \
+        --with-mpfr="${HOST_PATH}" \
+        --with-gmp="${HOST_PATH}" \
+        --with-mpc="${HOST_PATH}" \
+        --with-isl="${HOST_PATH}" \
+        --with-build-sysroot="${SYSROOT_PATH}" \
         --with-glibc-version=${version_glic} \
+        --enable-default-pie \
+        --enable-default-ssp \
+        --with-system-zlib \
         --disable-bootstrap \
         --enable-threads=posix \
         --enable-check=release \
@@ -204,7 +214,7 @@ build_glibc_stage2()
         --host=${target} \
         --target=${target} \
         --build="$(../scripts/config.guess)" \
-        --enable-kernel=3.2 \
+        --enable-kernel=4.14 \
         --with-headers="${SYSROOT_PATH}"/usr/include \
         --disable-multilib \
         libc_cv_forced_unwind=yes                     \
@@ -239,7 +249,13 @@ build_gcc_stage3()
         --target=${target} \
         --prefix="${INSTALL_PATH}" \
         --with-sysroot="${SYSROOT_PATH}" \
+        --with-mpfr="${HOST_PATH}" \
+        --with-gmp="${HOST_PATH}" \
+        --with-mpc="${HOST_PATH}" \
+        --with-isl="${HOST_PATH}" \
         --with-glibc-version=${version_glic} \
+        --disable-libsanitizer \
+        --with-system-zlib \
         --disable-bootstrap \
         --enable-threads=posix \
         --enable-check=release \
@@ -345,6 +361,25 @@ check_param()
     fi
 }
 
+strip_compiler()
+{
+    arch=$1
+    target=$2
+    pushd ${OUTPUTS_PATH} >> /dev/null || exit
+    pushd gcc-${target} >> /dev/null || exit
+
+    strips bin/*
+
+    strips libexec/gcc/${target}/cc1
+    strips libexec/gcc/${target}/cc1plus
+    strips libexec/gcc/${target}/collect2
+    strips libexec/gcc/${target}/lto-wrapper
+    strips libexec/gcc/${target}/lto1
+
+    popd >> /dev/null || exit
+    popd >> /dev/null || exit
+}
+
 archive_compiler()
 {
     arch=$1
@@ -412,4 +447,5 @@ build_glibc_stage2      ${arch} ${target}   || exit
 build_gcc_stage3        ${arch} ${target}   || exit
 build_kernel            ${arch} ${target}   || exit
 build_program           ${arch} ${target}   || exit
+strip_compiler          ${arch} ${target}   || exit
 archive_compiler        ${arch} ${target}   || exit

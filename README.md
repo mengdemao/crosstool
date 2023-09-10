@@ -4,9 +4,15 @@
 
 ## 构建方法
 
+加载docker
+```shell
+docker run --name build-crosstool -v ${ROOT_PATH}:/crosstool --rm -it mengdemao/docker-crosstool /bin/bash
+```
+
 ```shell
 # 下载GCC源码
 bash ./scripts/download.sh
+
 
 # 执行构建
 ./build.sh --arch=arm --target=arm-linux-gnueabi
@@ -251,7 +257,7 @@ diff -urN gcc-12.2.0-diff/libsanitizer/asan/asan_linux.cpp gcc-12.2.0/libsanitiz
 @@ -65,6 +65,10 @@
  #define ucontext_t xucontext_t
  #endif
- 
+
 +#ifndef PATH_MAX
 +#define PATH_MAX 4096
 +#endif
