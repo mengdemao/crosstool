@@ -19,7 +19,7 @@ export OUTPUTS_PATH=${ROOT_PATH}/outputs
 # 编译CPU数
 NJOBS=$(nproc)
 
-version_compile=1.1
+version_compile=1.2
 version_gcc=13.2.0
 version_binutil=2.41
 version_glic=2.38
