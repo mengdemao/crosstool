@@ -19,8 +19,8 @@ source scripts/env.sh
 # 编译binutils
 build_binutils()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start compile binutils"
     pushd "${BUILD_PATH}"/${dir_binutils} >>/dev/null || exit
@@ -61,8 +61,8 @@ build_binutils()
 # 编译内核头文件
 build_kernel_header()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start compile linux kernel header"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
@@ -74,8 +74,8 @@ build_kernel_header()
 # 第一次编译gcc
 build_gcc_stage1()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start compile gcc first step"
     pushd "${BUILD_PATH}"/${dir_gcc} >>/dev/null || exit
@@ -117,8 +117,8 @@ build_gcc_stage1()
 # 第一次编译glibc
 build_glibc_stage1()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start compile glibc first step"
     pushd "${BUILD_PATH}"/${dir_glibc} >>/dev/null || exit
@@ -154,8 +154,8 @@ build_glibc_stage1()
 # 第二次编译gcc
 build_gcc_stage2()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start compile gcc second step"
     pushd "${BUILD_PATH}"/${dir_gcc} >> /dev/null || exit
@@ -170,6 +170,7 @@ build_gcc_stage2()
         --with-gmp="${HOST_PATH}" \
         --with-mpc="${HOST_PATH}" \
         --with-isl="${HOST_PATH}" \
+        --with-sysroot="${SYSROOT_PATH}" \
         --with-build-sysroot="${SYSROOT_PATH}" \
         --with-glibc-version=${version_glic} \
         --enable-default-pie \
@@ -199,8 +200,8 @@ build_gcc_stage2()
 # 第二次编译glibc
 build_glibc_stage2()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start compile glibc second step"
     pushd "${BUILD_PATH}"/${dir_glibc} >>/dev/null || exit
@@ -235,8 +236,8 @@ build_glibc_stage2()
 # 第三次编译gcc
 build_gcc_stage3()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start compile gcc third step"
 
@@ -253,6 +254,8 @@ build_gcc_stage3()
         --with-gmp="${HOST_PATH}" \
         --with-mpc="${HOST_PATH}" \
         --with-isl="${HOST_PATH}" \
+        --with-sysroot="${SYSROOT_PATH}" \
+        --with-build-sysroot="${SYSROOT_PATH}" \
         --with-glibc-version=${version_glic} \
         --disable-libsanitizer \
         --with-system-zlib \
@@ -279,7 +282,7 @@ build_gcc_stage3()
 
 build_arm32_kernel()
 {
-    target=$1
+    local target=$1
 
     echo -e "start test compile"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
@@ -292,7 +295,7 @@ build_arm32_kernel()
 
 build_arm64_kernel()
 {
-    target=$1
+    local target=$1
     echo -e "start test compile"
     pushd "${BUILD_PATH}"/${dir_linux} >>/dev/null || exit
     make ARCH=arm64 CROSS_COMPILE=${target}- distclean || exit
@@ -304,8 +307,8 @@ build_arm64_kernel()
 
 build_kernel()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     if [ ${arch} = arm ]; then
         build_arm32_kernel ${target}
@@ -316,8 +319,8 @@ build_kernel()
 
 build_program()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     echo -e "start test compile"
     pushd "${ROOT_PATH}"/${dir_test} >>/dev/null || exit
@@ -343,8 +346,8 @@ usage()
 
 check_param()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
 
     if [[ "${arch_list[@]}" =~ ${arch} ]]; then
         echo -e "check success ${arch}"
@@ -363,18 +366,24 @@ check_param()
 
 strip_compiler()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
+    local files
+
     pushd ${OUTPUTS_PATH} >> /dev/null || exit
     pushd gcc-${target} >> /dev/null || exit
 
-    strips bin/*
+    files=$(ls bin/*)
+    for f in ${files}
+    do
+        strip $f
+    done
 
-    strips libexec/gcc/${target}/cc1
-    strips libexec/gcc/${target}/cc1plus
-    strips libexec/gcc/${target}/collect2
-    strips libexec/gcc/${target}/lto-wrapper
-    strips libexec/gcc/${target}/lto1
+    strip libexec/gcc/${target}/${version_gcc}/cc1
+    strip libexec/gcc/${target}/${version_gcc}/cc1plus
+    strip libexec/gcc/${target}/${version_gcc}/collect2
+    strip libexec/gcc/${target}/${version_gcc}/lto-wrapper
+    strip libexec/gcc/${target}/${version_gcc}/lto1
 
     popd >> /dev/null || exit
     popd >> /dev/null || exit
@@ -382,8 +391,8 @@ strip_compiler()
 
 archive_compiler()
 {
-    arch=$1
-    target=$2
+    local arch=$1
+    local target=$2
     pushd ${OUTPUTS_PATH} >> /dev/null || exit
     tar -cf gcc-${target}.tar.xz gcc-${target}
     rm -rf gcc-${target}
@@ -430,7 +439,7 @@ while true; do
 done
 
 export INSTALL_PATH=${OUTPUTS_PATH}/gcc-${target}
-export SYSROOT_PATH=${INSTALL_PATH}/${target}/sysroot
+export SYSROOT_PATH=${INSTALL_PATH}/${target}
 export PATH=${INSTALL_PATH}/bin:${PATH}
 
 # 创建目标文件夹
