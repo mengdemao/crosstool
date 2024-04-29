@@ -46,6 +46,7 @@ build_binutils()
 		--enable-64-bit-bfd \
 		--disable-bootstrap \
         --disable-shared \
+        --enable-default-hash-style=gnu \
         || exit
 
     make -j "${NJOBS}" || exit
@@ -249,7 +250,6 @@ build_gcc_stage3()
     ../configure \
         --target=${target} \
         --prefix="${INSTALL_PATH}" \
-        --with-sysroot="${SYSROOT_PATH}" \
         --with-mpfr="${HOST_PATH}" \
         --with-gmp="${HOST_PATH}" \
         --with-mpc="${HOST_PATH}" \
@@ -270,8 +270,8 @@ build_gcc_stage3()
         --with-gnu-as ||
         exit
 
-    make -j "${NJOBS}" || exit
-    make install -j "${NJOBS}" || exit
+    make               || exit
+    make install       || exit
 
     popd >> /dev/null || exit
     rm -rf build_gcc_stage3
@@ -370,7 +370,7 @@ strip_compiler()
     local target=$2
     local files
 
-    pushd ${OUTPUTS_PATH} >> /dev/null || exit
+    pushd ${INSTALL_PATH} >> /dev/null || exit
     pushd gcc-${target} >> /dev/null || exit
 
     files=$(ls bin/*)
@@ -393,7 +393,7 @@ archive_compiler()
 {
     local arch=$1
     local target=$2
-    pushd ${OUTPUTS_PATH} >> /dev/null || exit
+    pushd ${INSTALL_PATH} >> /dev/null || exit
     tar -cf gcc-${target}.tar.xz gcc-${target}
     rm -rf gcc-${target}
     popd >> /dev/null || exit
@@ -438,7 +438,7 @@ while true; do
     esac
 done
 
-export INSTALL_PATH=${OUTPUTS_PATH}/gcc-${target}
+export INSTALL_PATH=${INSTALL_PATH}/gcc-${target}
 export SYSROOT_PATH=${INSTALL_PATH}/${target}
 export PATH=${INSTALL_PATH}/bin:${PATH}
 

@@ -88,7 +88,7 @@ class CrosstoolConfig:
             'TARBALL_PATH' : '', # 下载文件
             'PATCHES_PATH' : '', # 补丁文件
             'SCRIPTS_PATH' : '', # 脚本文件
-            'OUTPUTS_PATH' : '', # 输出文件
+            'INSTALL_PATH' : '', # 输出文件
         }
 
         tmp_project_path = os.popen("git rev-parse --show-toplevel").read()
@@ -98,7 +98,7 @@ class CrosstoolConfig:
         self.environ['TARBALL_PATH'] = self.environ['PROJECT_PATH'] + '/tarball'
         self.environ['PATCHES_PATH'] = self.environ['PROJECT_PATH'] + '/patches'
         self.environ['SCRIPTS_PATH'] = self.environ['PROJECT_PATH'] + '/scripts'
-        self.environ['OUTPUTS_PATH'] = self.environ['PROJECT_PATH'] + '/outputs'
+        self.environ['INSTALL_PATH'] = self.environ['PROJECT_PATH'] + '/outputs'
 
         # 设置环境变量
         for key, env in self.environ.items():
@@ -111,8 +111,8 @@ class CrosstoolConfig:
         if not os.path.exists(self.environ['TARBALL_PATH']):
             os.mkdir(self.environ['TARBALL_PATH'])
 
-        if not os.path.exists(self.environ['OUTPUTS_PATH']):
-            os.mkdir(self.environ['OUTPUTS_PATH'])
+        if not os.path.exists(self.environ['INSTALL_PATH']):
+            os.mkdir(self.environ['INSTALL_PATH'])
 
     def config(self):
         '''

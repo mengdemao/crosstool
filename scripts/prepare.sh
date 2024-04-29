@@ -18,10 +18,10 @@ source scripts/env.sh
 gnu_mirror=https://mirrors.tuna.tsinghua.edu.cn
 kernel_mirror=https://mirrors.tuna.tsinghua.edu.cn
 
-if [ $CI_ENV ]; then
-    gnu_mirror=https://ftp.gnu.org/
-    kernel_mirror=https://mirrors.edge.kernel.org/pub/linux
-fi
+# if [ $CI_ENV ]; then
+#     gnu_mirror=https://ftp.gnu.org/
+#     kernel_mirror=https://mirrors.edge.kernel.org/pub/linux
+# fi
 
 if [ ! -d "${TARBALL_PATH}" ]; then
     mkdir -p "${TARBALL_PATH}"
