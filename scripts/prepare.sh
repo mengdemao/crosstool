@@ -18,10 +18,10 @@ source scripts/env.sh
 gnu_mirror=https://mirrors.tuna.tsinghua.edu.cn
 kernel_mirror=https://mirrors.tuna.tsinghua.edu.cn
 
-if [ $CI_ENV ]; then
-    gnu_mirror=https://ftp.gnu.org/
-    kernel_mirror=https://mirrors.edge.kernel.org/pub/linux
-fi
+# if [ $CI_ENV ]; then
+#     gnu_mirror=https://ftp.gnu.org/
+#     kernel_mirror=https://mirrors.edge.kernel.org/pub/linux
+# fi
 
 if [ ! -d "${TARBALL_PATH}" ]; then
     mkdir -p "${TARBALL_PATH}"
@@ -78,7 +78,9 @@ echo -e "end uncompress ${file_gcc} to ${BUILD_PATH}\n"
 
 # 打入补丁
 pushd "${BUILD_PATH}/${dir_gcc}" >> /dev/null || exit
-patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null || exit
+if [ -d "${PATCHES_PATH}"/gcc/${version_gcc} ]; then
+    patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null || exit
+fi
 popd >> /dev/null || exit
 
 echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}"

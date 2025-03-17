@@ -14,16 +14,16 @@ export HOST_PATH=${BUILD_PATH}/host
 export TARBALL_PATH=${ROOT_PATH}/tarball
 export PATCHES_PATH=${ROOT_PATH}/patches
 export SCRIPTS_PATH=${ROOT_PATH}/scripts
-export OUTPUTS_PATH=${ROOT_PATH}/outputs
+export INSTALL_PATH=${ROOT_PATH}/install
 
 # 编译CPU数
 NJOBS=$(nproc)
 
 version_compile=1.2
-version_gcc=13.2.0
-version_binutil=2.41
-version_glic=2.38
-version_linux=6.1.27
+version_gcc=14.2.0
+version_binutil=2.44
+version_glic=2.41
+version_linux=6.12.19
 version_gmp=6.3.0
 version_mpc=1.3.1
 version_mpfr=4.2.1
