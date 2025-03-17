@@ -78,7 +78,9 @@ echo -e "end uncompress ${file_gcc} to ${BUILD_PATH}\n"
 
 # 打入补丁
 pushd "${BUILD_PATH}/${dir_gcc}" >> /dev/null || exit
-patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null || exit
+if [ -d "${PATCHES_PATH}"/gcc/${version_gcc} ]; then
+    patch -p1 < "${PATCHES_PATH}"/gcc/${version_gcc}/fix_error.patch >> /dev/null || exit
+fi
 popd >> /dev/null || exit
 
 echo -e "start uncompress ${file_gmp} to ${BUILD_PATH}"

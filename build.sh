@@ -96,11 +96,13 @@ build_gcc_stage1()
         --with-glibc-version=${version_glic} \
         --with-system-zlib \
         --disable-bootstrap \
+        --disable-libstdcxx  \
         --enable-threads=posix \
         --enable-check=release \
         --enable-languages=c,c++ \
         --disable-multilib \
         --without-headers \
+        --with-newlib     \
         --with-gnu-ld \
         --with-gnu-as ||
         exit
@@ -257,20 +259,42 @@ build_gcc_stage3()
         --with-sysroot="${SYSROOT_PATH}" \
         --with-build-sysroot="${SYSROOT_PATH}" \
         --with-glibc-version=${version_glic} \
-        --disable-libsanitizer \
+        --disable-fixincludes  \
+        --program-prefix=${target}- \
+        --libdir="${INSTALL_PATH}"/lib \
+        --libexecdir="${INSTALL_PATH}"/lib \
+        --with-local-prefix="${INSTALL_PATH}"/${target} \
+        --with-native-system-header-dir=/include \
+        --with-as="${INSTALL_PATH}"/bin/${target}-as \
+        --with-ld="${INSTALL_PATH}"/bin/${target}-ld \
+        --with-linker-hash-style=gnu \
         --with-system-zlib \
-        --disable-bootstrap \
-        --enable-threads=posix \
-        --enable-check=release \
         --enable-languages=c,c++ \
-        --disable-multilib \
+        --enable-__cxa_atexit \
+        --enable-cet=auto \
+        --enable-checking=release \
+        --enable-clocale=gnu \
+        --enable-default-pie \
+        --enable-default-ssp \
+        --enable-gnu-indirect-function \
+        --enable-gnu-unique-object \
+        --enable-libstdcxx-backtrace \
+        --enable-link-serialization=1 \
+        --enable-linker-build-id \
+        --enable-lto \
+        --enable-plugin \
         --enable-shared \
+        --enable-threads=posix \
+        --enable-libquadmath \
+        --enable-libvtv \
         --disable-nls \
-        --with-gnu-ld \
-        --with-gnu-as ||
-        exit
+        --disable-install-libiberty \
+        --disable-libssp \
+        --disable-libstdcxx-pch \
+        --disable-multilib \
+        --disable-werror || exit
 
-    make               || exit
+    make -j ${NJOBS}   || exit
     make install       || exit
 
     popd >> /dev/null || exit

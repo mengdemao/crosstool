@@ -17,13 +17,13 @@ export SCRIPTS_PATH=${ROOT_PATH}/scripts
 export INSTALL_PATH=${ROOT_PATH}/install
 
 # 编译CPU数
-NJOBS=12
+NJOBS=$(nproc)
 
 version_compile=1.2
-version_gcc=13.2.0
-version_binutil=2.42
-version_glic=2.39
-version_linux=6.6.23
+version_gcc=14.2.0
+version_binutil=2.44
+version_glic=2.41
+version_linux=6.12.19
 version_gmp=6.3.0
 version_mpc=1.3.1
 version_mpfr=4.2.1
